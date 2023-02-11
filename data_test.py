@@ -2,32 +2,91 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 import math as m
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
 
 c = 4800
 np.random.seed(7)
+@dataclass
+class Test(ABC):
+    current_c: int
+    voltage: Any
+    current: list[Any]
+    storage: dict{Any}
+    size: int
+    result: list[]
 
-current_sweep_i = np.linspace(0.2*c, 0.4*c, 50)
-current_sweep_v = 0.5*np.random.randn(50)+3.6
+    def store_data(self):
+        self.storage['current_sweep']['current'] = self.current
+        self.storage['current_sweep']['voltage'] = self.voltage
 
-current_pulse_i = []
-for point in np.linspace(0.2*c, 0.4*c, 25):
-    current_pulse_i.append(point)
-    current_pulse_i.append(-1*point)
+    @abstractmethod
+    def get_voltage(self):
+        ...
 
-AC_response_i = []
-x = np.linspace(0,4,100)
-for i in x:
-    AC_response_i.append(m.cos(i*2*m.pi))
+    @abstractmethod
+    def get_current(self):
+        ...
 
-y = 0.2*np.random.randn(100)+3.6
-AC_response_v = []
-AC_response_v_int = []
-for i in x:
-    AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2)))
-i = 0
-while (i < 100):
-    AC_response_v.append(AC_response_v_int[i]*y[i])
-    i += 1
+    @abstractmethod
+    def get_result(self):
+        ...
+
+@dataclass
+class CurrentSweep(Test):
+
+    def get_voltage(self):
+        self.voltage = 0.5*np.random.randn(50)+3.6
+
+    def get_current(self):
+        self.current =list(np.linspace(0.2*self.current_c, 0.4*self.current_c, self.size))
+
+    def get_result(self):
+        i = 0
+        while (i < self.size):
+            self.result.append = (self.voltage[i]/self.current[i])
+
+@dataclass
+class CurrentPulse(Test):
+
+    def get_volatge(self):
+        pass
+
+    def get_current(self):
+        for point in np.linspace(0.2*self.current_c, 0.4*self.current_c, int((self.size)/2)):
+            self.current.append(point)
+            self.current.append(-1*point)
+    
+    def get_result(self):
+        i = 0
+        while (i < self.size):
+            self.result.append = (self.voltage[i]/self.current[i])
+        
+
+
+@dataclass
+class ACResponse(Test):
+    current_amplitude: float=1
+    
+    def get_voltage(self):
+        AC_response_v_int = []
+        for i in np.linspace(0,4,self.size):
+            AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2)))
+        i = 0
+        while (i < self.size):
+            self.voltage.append(AC_response_v_int[i]*y[i])
+            i += 1
+
+    def get_current(self):
+        self.current = [(m.cos(point*2*m.pi)) for point in np.linspace(0,4,self.size)]
+        self.current = [self.current_amplitude*point for point in self.current]
+
+    def get_result(self):
+        pass
+
+        
+        
+    
 
 
 AC_response_i = np.asarray(AC_response_i)
@@ -70,6 +129,27 @@ ax1.tick_params(axis='y', colors='blue')
 plt.show()
 
 
+
+
+
+
+storage = {'SOC' : [],
+           'AC_response' :{
+                           'current' : [],
+                           'voltage' : [],
+                           'result' : []
+                          },
+            'current_pulse' :{
+                           'current' : [],
+                           'voltage' : [],
+                           'result' : []
+                          },
+            'current_sweep' : {
+                           'current' : [],
+                           'voltage' : [],
+                           'result' : []
+                          },
+          }
 
 
 
