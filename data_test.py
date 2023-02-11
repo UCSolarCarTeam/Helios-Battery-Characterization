@@ -15,17 +15,17 @@ for point in np.linspace(0.2*c, 0.4*c, 25):
     current_pulse_i.append(-1*point)
 
 AC_response_i = []
-x = np.linspace(0,1,50)
+x = np.linspace(0,4,100)
 for i in x:
     AC_response_i.append(m.cos(i*2*m.pi))
 
-y = 0.2*np.random.randn(50)+3.6
+y = 0.2*np.random.randn(100)+3.6
 AC_response_v = []
 AC_response_v_int = []
 for i in x:
     AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2)))
 i = 0
-while (i < 50):
+while (i < 100):
     AC_response_v.append(AC_response_v_int[i]*y[i])
     i += 1
 
@@ -59,8 +59,14 @@ ax2 = ax1.twinx()
 ax2.plot(x_data, AC_response_i, label = 'Input Current', color = 'red')
 #plt.plot(x_data, AC_response_i, label = 'Current')
 #plt.plot(x_data, fit_yx, '-', label = 'fit')
-ax1.legend(loc = 'lower left')
-ax2.legend(bbox_to_anchor = [0.31, 0.25])
+ax1.set_ylabel('Voltage V', c= 'blue')
+ax2.set_ylabel('Current A', c= 'red')
+ax2.spines['right'].set_color('red')
+ax2.spines['left'].set_color('blue')
+ax2.grid(c='red')
+ax2.tick_params(axis='y', colors='red')
+ax1.grid(c='blue')
+ax1.tick_params(axis='y', colors='blue')
 plt.show()
 
 
