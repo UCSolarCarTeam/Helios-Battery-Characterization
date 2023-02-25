@@ -5,31 +5,36 @@ import math as m
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Any
-
-c = 4800
+import csv
 
 np.random.seed(7)
 
 @dataclass
 class Test(ABC):
-    current_c: int
     voltage: list[Any]
     current: list[Any]
     storage: dict
     size: int
     result: list[Any]
+    current_c: int = 4800
 
     @abstractmethod
     def get_voltage(self):
         ...
 
-    @abstractmethod
-    def get_current(self):
-        ...
 
-    @abstractmethod
-    def get_result(self):
-        ...
+
+@dataclass
+class SOC(Test):
+
+    def get_voltage(self) -> list:
+        self.voltage = [3.5]
+        return self.voltage
+    
+    def store_data(self):
+        self.storage['SOC'] = self.get_voltage()
+
+        return self.storage
 
 @dataclass
 class CurrentSweep(Test):
@@ -54,9 +59,9 @@ class CurrentSweep(Test):
 
     
     def store_data(self):
-        self.storage['current_sweep']['current'] = self.get_current()
-        self.storage['current_sweep']['voltage'] = self.get_voltage()
-        self.storage['current_sweep']['result'] = self.get_result()
+        self.storage['current_sweep']['currentCS'] = self.get_current()
+        self.storage['current_sweep']['voltageCS'] = self.get_voltage()
+        self.storage['current_sweep']['resultCS'] = self.get_result()
 
 
         return self.storage
@@ -86,9 +91,9 @@ class CurrentPulse(Test):
         return self.result
 
     def store_data(self):
-        self.storage['current_pulse']['current'] = self.get_current()
-        self.storage['current_pulse']['voltage'] = self.get_voltage()
-        self.storage['current_pulse']['result'] = self.get_result()
+        self.storage['current_pulse']['currentCP'] = self.get_current()
+        self.storage['current_pulse']['voltageCP'] = self.get_voltage()
+        self.storage['current_pulse']['resultCP'] = self.get_result()
 
         return self.storage
         
@@ -120,9 +125,9 @@ class ACResponse(Test):
         pass
 
     def store_data(self):
-        self.storage['AC_response']['current'] = self.get_current()
-        self.storage['AC_response']['voltage'] = self.get_voltage()
-        self.storage['AC_response']['result'] = self.get_result()
+        self.storage['AC_response']['currentAC'] = self.get_current()
+        self.storage['AC_response']['voltageAC'] = self.get_voltage()
+        self.storage['AC_response']['resultAC'] = self.get_result()
 
         return self.storage
 
@@ -171,43 +176,61 @@ def cos_func(xdata, D, E, F):
 
 cell_storage = {'SOC' : [],
            'AC_response' :{
-                           'current' : [],
-                           'voltage' : [],
-                           'result' : []
+                           'currentAC' : [],
+                           'voltageAC' : [],
+                           'resultAC' : []
                           },
             'current_pulse' :{
-                           'current' : [],
-                           'voltage' : [],
-                           'result' : []
+                           'currentCP' : [],
+                           'voltageCP' : [],
+                           'resultCP' : []
                           },
             'current_sweep' : {
-                           'current' : [],
-                           'voltage' : [],
-                           'result' : []
+                           'currentCS' : [],
+                           'voltageCS' : [],
+                           'resultCS' : []
                           },
           }
 
-carton_storage = [cell_storage for point in range(130)]
 
 
-test = ACResponse(current_c = 48000, voltage = [], current = [], storage = carton_storage[0], size = 50, result = [] )
-test2 = CurrentPulse(current_c = 48000, voltage = [], current = [], storage = carton_storage[0], size = 6, result = [] )
-test3 = CurrentSweep(current_c = 48000, voltage = [], current = [], storage = carton_storage[0], size = 6, result = [] )
+cell_number = 'test4-01-01'
 
 
+SOC_test = SOC( current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [])
+AC_test = ACResponse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
+CP_test = CurrentPulse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
+CS_test = CurrentSweep(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
 
 
+SOC_test.store_data()
+AC_test.store_data()
+CP_test.store_data()
+CS_test.store_data()
 
-#storage['AC_response']['current'] = [1,2,3,4]
+with open('test_carton.csv', 'a', newline='') as csvfile:
+    fieldnames = ['cell #','SOC', 'voltageAC' , 'resultAC', 'voltageCP', 'resultCP', 'voltageCS', 'resultCS']
 
-#print(storage['AC_response']['current'])
-'''test.store_data()
-test2.store_data()
-test3.store_data()
+    writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
+    if csvfile.tell() == 0:
+        writer.writeheader()
 
-print(test.graph())'''
 
-test.graph()
+    row = {'cell #': cell_number,
+            'SOC': SOC_test.voltage,
+            'voltageAC': AC_test.voltage,
+            'resultAC': AC_test.result,
+            'voltageCP': CP_test.voltage,
+            'resultCP': CP_test.result,
+            'voltageCS': CS_test.voltage,
+            'resultCS': CS_test.result 
+        }
+
+    writer.writerow(row)
+
+    csvfile.close()
+
+        
 
 
 
