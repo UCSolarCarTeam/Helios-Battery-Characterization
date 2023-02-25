@@ -9,28 +9,84 @@ import csv
 
 np.random.seed(7)
 
-current_sweep_i = np.linspace(0.2*c, 0.4*c, 50)
-current_sweep_v = 0.5*np.random.randn(50)+3.6
+@dataclass
+class Test(ABC):
+    voltage: list[Any]
+    current: list[Any]
+    storage: dict
+    size: int
+    result: list[Any]
+    current_c: int = 4800
 
-current_pulse_i = []
-for point in np.linspace(0.2*c, 0.4*c, 25):
-    current_pulse_i.append(point)
-    current_pulse_i.append(-1*point)
+    @abstractmethod
+    def get_voltage(self):
+        ...
 
-AC_response_i = []
-x = np.linspace(0,4,100)
-for i in x:
-    AC_response_i.append(m.cos(i*2*m.pi))
 
-y = 0.2*np.random.randn(100)+3.6
-AC_response_v = []
-AC_response_v_int = []
-for i in x:
-    AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2)))
-i = 0
-while (i < 100):
-    AC_response_v.append(AC_response_v_int[i]*y[i])
-    i += 1
+
+@dataclass
+class SOC(Test):
+
+    def get_voltage(self) -> list:
+        self.voltage = [3.5]
+        return self.voltage
+    
+    def store_data(self):
+        self.storage['SOC'] = self.get_voltage()
+
+        return self.storage
+
+@dataclass
+class CurrentSweep(Test):
+
+    def get_voltage(self)-> list:
+        self.voltage = list(0.5*np.random.randn(self.size)+3.6)
+        
+        return self.voltage
+
+    def get_current(self)-> list:
+        self.current =list(np.linspace(0.2*self.current_c, 0.4*self.current_c, self.size))
+
+        return self.current
+
+    def get_result(self):
+        i = 0
+        while (i < self.size):
+            self.result.append(self.voltage[i]/self.current[i])
+            i += 1
+
+        return self.result
+
+    
+    def store_data(self):
+        self.storage['current_sweep']['currentCS'] = self.get_current()
+        self.storage['current_sweep']['voltageCS'] = self.get_voltage()
+        self.storage['current_sweep']['resultCS'] = self.get_result()
+
+
+        return self.storage
+
+@dataclass
+class CurrentPulse(Test):
+
+    def get_voltage(self):
+        self.voltage = list(0.3*np.random.randn(self.size)+3.6)
+
+        return self.voltage
+
+    def get_current(self):
+        for point in np.linspace(0.2*self.current_c, 0.4*self.current_c, int((self.size)/2)):
+            self.current.append(point)
+            self.current.append(-1*point)
+
+
+        return self.current
+    
+    def get_result(self):
+        i = 0
+        while (i < self.size-1 ):
+            self.result.append(self.get_voltage()[i]/self.get_current()[i])
+            i += 1
 
         return self.result
 
@@ -39,10 +95,8 @@ while (i < 100):
         self.storage['current_pulse']['voltageCP'] = self.get_voltage()
         self.storage['current_pulse']['resultCP'] = self.get_result()
 
-AC_response_i = np.asarray(AC_response_i)
-AC_response_v = np.asarray(AC_response_v)
-x_data = np.asarray(x)
-
+        return self.storage
+        
 
 
 @dataclass
@@ -177,6 +231,16 @@ with open('test_carton.csv', 'a', newline='') as csvfile:
     csvfile.close()
 
         
+
+
+
+
+
+
+
+
+
+
 
 
 
