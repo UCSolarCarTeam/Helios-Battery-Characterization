@@ -132,7 +132,7 @@ class ACResponse(Test):
         return self.storage
 
     def graph(self):
-        voltage_array = np.asarray(self.get_voltage())
+        voltage_array = np.asarray(self.voltage)
         current_array = np.asarray(self.get_current())
         x_data = np.asarray(np.linspace(0,1,self.size))
 
@@ -192,46 +192,85 @@ cell_storage = {'SOC' : [],
                           },
           }
 
+def run_test(cell_number):
 
 
-cell_number = 'test4-01-01'
+    SOC_test = SOC( current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [])
+    AC_test = ACResponse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
+    CP_test = CurrentPulse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
+    CS_test = CurrentSweep(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
 
 
-SOC_test = SOC( current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [])
-AC_test = ACResponse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
-CP_test = CurrentPulse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
-CS_test = CurrentSweep(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 6, result = [] )
+    SOC_test.store_data()
+    AC_test.store_data()
+    CP_test.store_data()
+    CS_test.store_data()
+
+    with open('test_carton.csv', 'a', newline='') as csvfile:
+        fieldnames = ['cell #','SOC', 'voltageAC' , 'resultAC', 'voltageCP', 'resultCP', 'voltageCS', 'resultCS']
+
+        writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
+        if csvfile.tell() == 0:
+            writer.writeheader()
 
 
-SOC_test.store_data()
-AC_test.store_data()
-CP_test.store_data()
-CS_test.store_data()
+        row = {'cell #': cell_number,
+                'SOC': SOC_test.voltage,
+                'voltageAC': AC_test.voltage,
+                'resultAC': AC_test.result,
+                'voltageCP': CP_test.voltage,
+                'resultCP': CP_test.result,
+                'voltageCS': CS_test.voltage,
+                'resultCS': CS_test.result 
+            }
 
-with open('test_carton.csv', 'a', newline='') as csvfile:
-    fieldnames = ['cell #','SOC', 'voltageAC' , 'resultAC', 'voltageCP', 'resultCP', 'voltageCS', 'resultCS']
+        writer.writerow(row)
 
-    writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
-    if csvfile.tell() == 0:
-        writer.writeheader()
+    
+   
 
 
-    row = {'cell #': cell_number,
-            'SOC': SOC_test.voltage,
-            'voltageAC': AC_test.voltage,
-            'resultAC': AC_test.result,
-            'voltageCP': CP_test.voltage,
-            'resultCP': CP_test.result,
-            'voltageCS': CS_test.voltage,
-            'resultCS': CS_test.result 
-        }
+def reread_test(cell_number):
+    with open('test_carton.csv', 'r',  newline='') as csvfile:
+    # Create a DictReader object for the CSV file
+        reader = csv.DictReader(csvfile)
 
-    writer.writerow(row)
+    
+    # Iterate through the rows of the CSV file and print each row
+        for row in reader:
+            if row['cell #'] == cell_number:
+                SOC = row['SOC']
+                voltageAC = row['voltageAC']
+                resultAC = row['resultAC']
+                voltageCP = row['voltageCP']
+                resultCP = row['resultCP']
+                voltageCS = row['voltageCS']
+                resultCS = row['resultCS']
 
-    csvfile.close()
+                break
+
+       
+        
+        punctuations = [',', ']', '[']
+
+        for punctuation in punctuations:
+            voltageAC = voltageAC.replace(punctuation, ' ')
 
         
+        voltageAC = voltageAC.split()
 
+        for i in range(len(voltageAC)):
+            voltageAC[i] = float(voltageAC[i])
+
+
+        AC_graph =  ACResponse(current_c = 48000, voltage = voltageAC, current = [], storage = cell_storage, size = 100, result = [] )
+         
+        AC_graph.graph()
+        
+
+#run_test( 'test3-01-01')
+
+reread_test('test3-01-01')
 
 
 
