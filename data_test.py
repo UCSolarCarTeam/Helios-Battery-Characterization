@@ -6,31 +6,31 @@ import math as m
 c = 4800
 np.random.seed(7)
 
-current_sweep_i = np.linspace(0.2*c, 0.4*c, 50)
-current_sweep_v = 0.5*np.random.randn(50)+3.6
+current_sweep_i = np.linspace(0.2*c, 0.4*c, 50) #Makes current range
+current_sweep_v = 0.5*np.random.randn(50)+3.6 #Makes voltage values
 
 current_pulse_i = []
 for point in np.linspace(0.2*c, 0.4*c, 25):
     current_pulse_i.append(point)
-    current_pulse_i.append(-1*point)
+    current_pulse_i.append(-1*point) #makes the a varying current pulse
 
 AC_response_i = []
-x = np.linspace(0,4,100)
+x = np.linspace(0,4,100) #number of samples
 for i in x:
-    AC_response_i.append(m.cos(i*2*m.pi))
+    AC_response_i.append(m.cos(i*2*m.pi)) #Creates an AC response current
 
-y = 0.2*np.random.randn(100)+3.6
+y = 0.2*np.random.randn(100)+3.6 # voltage amplitudes
 AC_response_v = []
 AC_response_v_int = []
 for i in x:
-    AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2)))
+    AC_response_v_int.append(m.cos(i*2*m.pi - (m.pi/2))) #Creates AC voltage sinusoid, voltage leads current by pi/2
 i = 0
 while (i < 100):
-    AC_response_v.append(AC_response_v_int[i]*y[i])
+    AC_response_v.append(AC_response_v_int[i]*y[i]) #Creates voltage sinusoid
     i += 1
 
 
-AC_response_i = np.asarray(AC_response_i)
+AC_response_i = np.asarray(AC_response_i) #Converts AC_response_i into an np array
 AC_response_v = np.asarray(AC_response_v)
 x_data = np.asarray(x)
 
