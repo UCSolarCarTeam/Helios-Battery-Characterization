@@ -16,7 +16,7 @@ class Test(ABC):
     storage: dict
     size: int
     result: list[Any]
-    current_c: int = 4800
+    current_c: float = 4.800
 
     @abstractmethod
     def get_voltage(self):
@@ -40,12 +40,13 @@ class SOC(Test):
 class CurrentSweep(Test):
 
     def get_voltage(self)-> list:
-        self.voltage = list(0.5*np.random.randn(self.size)+3.6)
+        self.voltage = list(np.linspace(0.2*3.6, 0.4*3.6, self.size))
         
         return self.voltage
 
     def get_current(self)-> list:
-        self.current =list(np.linspace(0.2*self.current_c, 0.4*self.current_c, self.size))
+        self.current =list(abs(np.linspace(0.2*self.current_c, 0.4*self.current_c, self.size)))
+
 
         return self.current
 
@@ -65,6 +66,17 @@ class CurrentSweep(Test):
 
 
         return self.storage
+    
+    def graph(self):
+        result_array = np.asarray(self.result)
+        voltage_array = np.asarray(self.voltage)
+        current_array = np.asarray(self.get_current())
+
+        plt.plot(result_array, c= 'green')
+        plt.plot(voltage_array, c='blue')
+        plt.plot(current_array,c='red')
+        plt.show()
+        
 
 @dataclass
 class CurrentPulse(Test):
@@ -79,13 +91,12 @@ class CurrentPulse(Test):
             self.current.append(point)
             self.current.append(-1*point)
 
-
         return self.current
     
     def get_result(self):
         i = 0
         while (i < self.size-1 ):
-            self.result.append(self.get_voltage()[i]/self.get_current()[i])
+            self.result.append(np.asarray(self.voltage)[i]/np.asarray(self.get_current()[i]))
             i += 1
 
         return self.result
@@ -96,6 +107,16 @@ class CurrentPulse(Test):
         self.storage['current_pulse']['resultCP'] = self.get_result()
 
         return self.storage
+    
+    def graph(self):
+        result_array = np.asarray(self.result)
+        voltage_array = np.asarray(self.voltage)
+        current_array = np.asarray(self.get_current())
+
+        plt.plot(result_array, c= 'green')
+        plt.plot(voltage_array, c='blue')
+        plt.plot(current_array,c='red')
+        plt.show()
         
 
 
@@ -195,18 +216,22 @@ cell_storage = {'SOC' : [],
 def run_test(cell_number):
 
 
-    SOC_test = SOC( current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [])
-    AC_test = ACResponse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
-    CP_test = CurrentPulse(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
-    CS_test = CurrentSweep(current_c = 48000, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
+    SOC_test = SOC( current_c = 4800, voltage = [], current = [], storage = cell_storage, size = 100, result = [])
+    AC_test = ACResponse(current_c = 4800, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
+    CP_test = CurrentPulse(current_c = 4800, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
+    CS_test = CurrentSweep(current_c = 4800, voltage = [], current = [], storage = cell_storage, size = 100, result = [] )
 
+    with open('AC_current.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        for point in AC_test.get_current():
+            writer.writerow(["{:.2f}".format(point)])
 
     SOC_test.store_data()
     AC_test.store_data()
     CP_test.store_data()
     CS_test.store_data()
 
-    with open('test_carton.csv', 'a', newline='') as csvfile:
+    with open('test_carton1.csv', 'a', newline='') as csvfile:
         fieldnames = ['cell #','SOC', 'voltageAC' , 'resultAC', 'voltageCP', 'resultCP', 'voltageCS', 'resultCS']
 
         writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
@@ -231,7 +256,7 @@ def run_test(cell_number):
 
 
 def reread_test(cell_number):
-    with open('test_carton.csv', 'r',  newline='') as csvfile:
+    with open('test_carton1.csv', 'r',  newline='') as csvfile:
     # Create a DictReader object for the CSV file
         reader = csv.DictReader(csvfile)
 
@@ -255,17 +280,44 @@ def reread_test(cell_number):
 
         for punctuation in punctuations:
             voltageAC = voltageAC.replace(punctuation, ' ')
+            resultCP = resultCP.replace(punctuation, '')
+            resultCS = resultCS.replace(punctuation, '')
+            voltageCP = voltageCP.replace(punctuation, '')
+            voltageCS = voltageCS.replace(punctuation, '')
+    
 
         
         voltageAC = voltageAC.split()
+        resultCP = resultCP.split()
+        resultCS = resultCS.split()
+        voltageCP = voltageCP.split()
+        voltageCS = voltageCS.split()
 
         for i in range(len(voltageAC)):
             voltageAC[i] = float(voltageAC[i])
 
+            
+        for i in range(len(resultCP)):
+            resultCP[i] = float(resultCP[i])
 
-        AC_graph =  ACResponse(current_c = 48000, voltage = voltageAC, current = [], storage = cell_storage, size = 100, result = [] )
-         
+        for i in range(len(resultCS)):
+            resultCS[i] = float(resultCS[i])
+
+        for i in range(len(voltageCS)):
+            voltageCS[i] = float(voltageCS[i])
+
+        for i in range(len(voltageCS)):
+            voltageCS[i] = float(voltageCS[i])
+
+
+
+        AC_graph =  ACResponse(current_c = 4.800, voltage = voltageAC, current = [], storage = cell_storage, size = 100, result = [] )
+        CP_graph = CurrentPulse(current_c = 4.800, voltage = voltageCP, current = [], storage = cell_storage, size = 100, result = resultCP ) 
+        CS_graph = CurrentPulse(current_c = 4.800, voltage = voltageCS, current = [], storage = cell_storage, size = 100, result = resultCS ) 
+
         AC_graph.graph()
+        CP_graph.graph()
+        CS_graph.graph()
         
 
 #run_test( 'test3-01-01')
