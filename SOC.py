@@ -2,6 +2,7 @@ import sys
 from time import time, sleep
 from datetime import datetime
 from PPH_1503D import PPH_1503D
+import math as m 
 import csv
 import numpy as np
 
@@ -40,22 +41,45 @@ def current_sweep(current_c,size ):
     t_ref_update = time()
     t_ref_measurement = time()
 
-    for data in current:
+    
         
-        while True:
+    for data in current:
+        t_ref_int_update = time()
+        t_ref_int_measurement = time()
+
+        if (t_ref_int_update - t_ref_update) >= currentsweep_update_int:  # timing for updates
+            t_ref_update = t_ref_int_update
+            PSU.set_source_ilim(1, data)
+            measurement = take_measurement()
+
+        if (t_ref_int_measurement - t_ref_measurement) >= currentsweep_measure_int:  # timing for measurements
+            t_ref_measurement = t_ref_int_measurement
+            measurement=take_measurement()
+            write_measurement(file_handler=WRITER, measurement=measurement)
+
+def ac_impedance(current_c, size):
+    ac_impedance_current = [(m.cos(point*2*m.pi)) for point in np.linspace(0,1,size)]
+    ac_impedance_update_int = 1.25
+    ac_impedance_measure_int = 1.25
+    t_ref_update = time()
+    t_ref_measurement = time()   
+
+    for i in range(0,1,1):
+        for data in ac_impedance_current:
             t_ref_int_update = time()
             t_ref_int_measurement = time()
-
-            if (t_ref_int_update - t_ref_update) >= currentsweep_update_int:  # timing for updates
+            if (t_ref_int_update - t_ref_update) >= ac_impedance_update_int:  # timing for updates
                 t_ref_update = t_ref_int_update
                 PSU.set_source_ilim(1, data)
                 measurement = take_measurement()
 
-            if (t_ref_int_measurement - t_ref_measurement) >= currentsweep_measure_int:  # timing for measurements
+            if (t_ref_int_measurement - t_ref_measurement) >= ac_impedance_measure_int:  # timing for measurements
                 t_ref_measurement = t_ref_int_measurement
                 measurement=take_measurement()
                 write_measurement(file_handler=WRITER, measurement=measurement)
-        
+     
+    
+            
 
 
 
