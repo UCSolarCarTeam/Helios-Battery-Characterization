@@ -104,21 +104,32 @@ except UnboundLocalError:
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-# Plot the first graph (Voltage and Current vs. Time)
+#
+# Plot the first graph (Voltage vs. Time)
 axs[0].plot(cs_time, cs_voltage, marker='o', linestyle='-', color='blue', label='Voltage')
-axs[0].plot(cs_time, cs_current, marker='s', linestyle='--', color='green', label='Current')
 axs[0].set_xlabel('Time')
-axs[0].set_ylabel('Voltage and Current')
+axs[0].set_ylabel('Voltage', color='blue')
+axs[0].tick_params(axis='y', labelcolor='blue')
 axs[0].set_title('Current Sweep')
-axs[0].legend()
 
-# Plot the second graph (Voltage and Current vs. Time)
+# Create a secondary y-axis for the first subplot (Current)
+ax2 = axs[0].twinx()
+ax2.plot(cs_time, cs_current, marker='s', linestyle='--', color='green', label='Current')
+ax2.set_ylabel('Current', color='green')
+ax2.tick_params(axis='y', labelcolor='green')
+
+# Plot the second graph (Voltage vs. Time)
 axs[1].plot(ai_time, ai_voltage, marker='o', linestyle='-', color='blue', label='Voltage')
-axs[1].plot(ai_time, ai_current, marker='s', linestyle='--', color='green', label='Current')
 axs[1].set_xlabel('Time')
-axs[1].set_ylabel('Voltage and Current')
-axs[1].set_title('Voltage and Current vs. Time')
-axs[1].legend()
+axs[1].set_ylabel('Voltage', color='blue')
+axs[1].tick_params(axis='y', labelcolor='blue')
+axs[1].set_title('AC Impendance')
+
+# Create a secondary y-axis for the second subplot (Current)
+ax3 = axs[1].twinx()
+ax3.plot(ai_time, ai_current, marker='s', linestyle='--', color='green', label='Current')
+ax3.set_ylabel('Current', color='green')
+ax3.tick_params(axis='y', labelcolor='green')
 
 # Rotate x-axis labels for better readability (adjust the rotation angle as needed)
 axs[0].tick_params(axis='x', rotation=45)
@@ -129,6 +140,4 @@ plt.tight_layout()
 
 # Show the plots
 plt.show()
-
-
 
