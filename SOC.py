@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     # Log setup 
     FILENAME = f'Cycle Test.csv'
-    with open(FILENAME, 'w', newline='') as F:
+    with open(FILENAME, 'a', newline='') as F:
         try:
             #run tests
             WRITER = csv.writer(F)  
