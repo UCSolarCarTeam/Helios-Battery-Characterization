@@ -5,6 +5,8 @@ from PPH_1503D import PPH_1503D
 import math as m 
 import csv
 import numpy as np
+import tkinter as tk
+import tkinter.ttk as ttk
 
 def take_measurement(stdout_suppressed=False):
     #takes a voltage measurement from the DVM and a current channel 1
@@ -124,6 +126,27 @@ def exit_all():
     PSU.__del__()
     exit()
 
+class CellSelectionFrame(ttk.Frame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.grid()
+
+        self.cellvar = tk.StringVar()
+
+        self.make_widgets()
+
+    def make_widgets(self):
+        self.country = ttk.Entry(self, textvariable=self.cellvar)
+        self.country.grid()
+
+        ttk.Button(self, text="Start Test", command=self.start_test).grid()
+
+    def start_test(self):
+        self.cell_value = self.cellvar.get()  # Store the value in an instance variable
+        self.master.quit()  # This will exit the GUI
+
+    def get_cell_value(self):
+        return self.cell_value
 
 if __name__ == "__main__":
     # Setup
@@ -138,6 +161,11 @@ if __name__ == "__main__":
         # Test parameters
        # Interval between log writes in seconds
 
+
+    root = tk.Tk()
+    input = CellSelectionFrame(root)
+    root.mainloop()
+
     CHARGE_V = 4.4
     C = 4.8                      # 1 C
     CHARGE_TERM_I = 0.03         # 0.02 Cmin
@@ -145,18 +173,18 @@ if __name__ == "__main__":
     DISCHARGE_TERM_V = 3.0
     SIZE = 50                     #size of the measurements
 
-    COLUMN = '01'
-    ROW = '01'
-    CARTON = '01'
+    cell_value = input.get_cell_value()
+    parts = cell_value.split('-')  
+    carton = parts[-1]  
 
     # Log setup 
-    FILENAME = f'Cycle Test.csv'
+    FILENAME = f'Cycle Test Carton {carton}.csv'
     with open(FILENAME, 'a', newline='') as F:
         try:
             #run tests
             WRITER = csv.writer(F)  
             WRITER.writerow(["Date & Time", 'Voltage', 'Current', "Cell Number"])
-            WRITER.writerow(['','','',"01-01-01"])
+            WRITER.writerow(['','','',cell_value])
 
             print("before SOC")
             WRITER.writerow(["SOC"])
