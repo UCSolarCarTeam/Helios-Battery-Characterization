@@ -79,6 +79,8 @@ def ac_impedance(current_c, size, file_handler):
     #created the currents points for the sinusoid
     ac_impedance_current = [0.5*(m.cos(point*2*m.pi)) for point in np.linspace(0,1,size)]
 
+    ac_impedance_current = [point + 1 for point in ac_impedance_current]    
+
     #update period for the current to change 1hz * 50 steps = 50 khz 
     ac_impedance_update_int = 0.00002
     #update period for the measurments to be written
