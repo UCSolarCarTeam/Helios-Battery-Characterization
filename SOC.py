@@ -173,6 +173,8 @@ if __name__ == "__main__":
     DISCHARGE_TERM_V = 3.0
     SIZE = 50                     #size of the measurements
 
+
+
     cell_value = input.get_cell_value()
     parts = cell_value.split('-')  
     carton = parts[-1]  
