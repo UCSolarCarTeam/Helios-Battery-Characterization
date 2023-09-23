@@ -100,7 +100,6 @@ def ac_impedance(current_c, size, file_handler):
                 
                 t_ref_update = t_ref_int_update
     
-    file_handler.writerow(['impedance done'])
 
     '''for i in range(0,6,1):
         #loops through the data
