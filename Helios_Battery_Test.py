@@ -196,11 +196,9 @@ if __name__ == "__main__":
             print("\nafter SOC, before sweep")
             WRITER.writerow(["Current Sweep"])
             current_sweep(C, SIZE, WRITER)
-            print('\nafter sweep, before impedance')
-            WRITER.writerow(["AC Impedance"])
-            ac_impedance(C, SIZE, WRITER)
+            print('\nafter sweep, test done')
             WRITER.writerow(["End Test"])
-            print("\nafter impedance, test done") 
+
 
             exit_all()
         except KeyboardInterrupt:
