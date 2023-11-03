@@ -33,6 +33,7 @@ def take_soc(stdout_suppressed=False):
     #takes a measurements of just the voltgae using the DVM
     #stdout_supressed is related to weither or not the measurments are printed
     volt_samp = PSU.measure_voltage(1)
+    
 
     # Print measurement
     if not stdout_suppressed:
@@ -151,7 +152,7 @@ class CellSelectionFrame(ttk.Frame):
 
 if __name__ == "__main__":
     # Setup
-    PSU = PPH_1503D('USB0::0x2184::0x002C::GEQ837356::3::INSTR')
+    PSU = PPH_1503D('USB0::0x2184::0x002C::GEQ837356::3::INSTR') #USB0::0x2184::0x002C::GEQ837356::3::INSTR
     PSU.set_outp_ovp(1, 4.6)
     PSU.set_outp_ovp_state(1, 'ON')
     PSU.set_data_format('SREal')
@@ -188,6 +189,10 @@ if __name__ == "__main__":
             WRITER = csv.writer(F)  
             WRITER.writerow(["Date & Time", 'Voltage', 'Current', "Cell Number"])
             WRITER.writerow(['','','',cell_value])
+            PSU.output_state(1, 'ON')
+            PSU.set_source_voltage(1, 3.8)
+            PSU.set_source_ilim(1, 0)
+
 
             print("before SOC")
             WRITER.writerow(["SOC"])
