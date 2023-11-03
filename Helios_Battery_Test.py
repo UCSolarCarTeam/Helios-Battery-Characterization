@@ -189,9 +189,11 @@ if __name__ == "__main__":
             WRITER = csv.writer(F)  
             WRITER.writerow(["Date & Time", 'Voltage', 'Current', "Cell Number"])
             WRITER.writerow(['','','',cell_value])
-            PSU.output_state(1, 'ON')
+
             PSU.set_source_voltage(1, 3.8)
             PSU.set_source_ilim(1, 0)
+            PSU.output_state(1, 'ON')
+           
 
 
             print("before SOC")
