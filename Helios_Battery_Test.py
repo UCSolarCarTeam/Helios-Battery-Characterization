@@ -7,6 +7,7 @@ import csv
 import numpy as np
 import tkinter as tk
 import tkinter.ttk as ttk
+import pandas as pd
 
 def take_measurement(stdout_suppressed=False):
     #takes a voltage measurement from the DVM and a current channel 1
@@ -136,12 +137,15 @@ class CellSelectionFrame(ttk.Frame):
 
         self.cellvar = tk.StringVar()
 
+        self.cell_guess = tk.StringVar()
+        self.cell_guess.set(f"{new_cell}")
+
         self.make_widgets()
 
         self.country.focus_set()
 
     def make_widgets(self):
-        self.country = ttk.Entry(self, textvariable=self.cellvar)
+        self.country = ttk.Entry(self, textvariable=self.cell_guess)
         self.country.grid()
 
         self.country.bind("<Return>", lambda event = None: self.start_test())
@@ -149,7 +153,7 @@ class CellSelectionFrame(ttk.Frame):
         ttk.Button(self, text="Start Test", command=self.start_test).grid()
 
     def start_test(self):
-        self.cell_value = self.cellvar.get()  # Store the value in an instance variable
+        self.cell_value = self.cell_guess.get()  # Store the value in an instance variable
         self.master.quit()  # This will exit the GUI
 
     def get_cell_value(self):
@@ -168,6 +172,46 @@ if __name__ == "__main__":
         # Test parameters
        # Interval between log writes in seconds
 
+    
+
+    for carton in range(-18, 0):
+        for end in ['b', 'a']:
+            try:
+                df = pd.read_csv(f"Cycle Test Carton {abs(carton):02}{end}.csv")
+                break
+            except FileNotFoundError:
+                print(f"no Cycle Test Carton {abs(carton):02}{end}.csv")
+        else:
+            continue  # Continue to the next iteration of the outer for loop
+        break  # Break from both loops when a CSV is found
+        
+
+    cells = df["Cell Number"].dropna().tolist()
+
+    last_cell = cells[-1]
+
+    lc_parts = last_cell.split('-')
+
+    for part in [0,1,2]:
+        lc_parts[part] = int(lc_parts[part])
+
+    if (lc_parts[0] < 13):
+        lc_parts[0] += 1
+    elif (lc_parts[1] <= 10):
+        lc_parts[1] = lc_parts[1] + 1
+        lc_parts[0] = 1
+    else:
+        lc_parts[2] = lc_parts[2] + 1
+        end = 'a'
+        lc_parts[0] = 1
+        lc_parts[1] = 1
+
+    if(lc_parts[1]<6):
+        end = 'a'
+    else:
+        end = 'b'
+    new_cell = f"{lc_parts[0]:02}-{lc_parts[1]:02}-{lc_parts[2]:02}{end}"
+
 
     root = tk.Tk()
     input = CellSelectionFrame(root)
@@ -181,13 +225,14 @@ if __name__ == "__main__":
     SIZE = 50                     #size of the measurements
 
 
-
+    
     cell_value = input.get_cell_value()
     parts = cell_value.split('-')  
     carton = parts[-1]  
 
     # Log setup 
     FILENAME = f'Cycle Test Carton {carton}.csv'
+    cell_value = cell_value[:-1]
     with open(FILENAME, 'a', newline='') as F:
         try:
             #run tests
