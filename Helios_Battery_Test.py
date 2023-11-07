@@ -127,6 +127,7 @@ def exit_all():
     PSU.output_state(1, 'OFF')
     PSU.__del__()
     exit()
+#
 
 class CellSelectionFrame(ttk.Frame):
     def __init__(self, parent=None):
@@ -137,9 +138,13 @@ class CellSelectionFrame(ttk.Frame):
 
         self.make_widgets()
 
+        self.country.focus_set()
+
     def make_widgets(self):
         self.country = ttk.Entry(self, textvariable=self.cellvar)
         self.country.grid()
+
+        self.country.bind("<Return>", lambda event = None: self.start_test())
 
         ttk.Button(self, text="Start Test", command=self.start_test).grid()
 
@@ -190,11 +195,10 @@ if __name__ == "__main__":
             WRITER.writerow(["Date & Time", 'Voltage', 'Current', "Cell Number"])
             WRITER.writerow(['','','',cell_value])
 
-            PSU.set_source_voltage(1, 3.8)
-            PSU.set_source_ilim(1, 0)
-            PSU.output_state(1, 'ON')
+            PSU.set_source_voltage(1, 3.8)#set the voltage higher than the what is should reach, which sets the supply to cc(current controled)
+            PSU.set_source_ilim(1, 0)#set the max current we would want
+            PSU.output_state(1, 'ON')#turn the output of the SMU
            
-
 
             print("before SOC")
             WRITER.writerow(["SOC"])
