@@ -6,6 +6,7 @@ def is_float(value): # Function to check if the voltage or current value in the 
         return True # Returns True if casting is possible
     except ValueError: # If ValueError occurs it will return False
         return False
+    
 
 def voltage_current(cell_number, csv_file): 
     voltage_list = [] # Empty voltage list initialized
@@ -35,3 +36,8 @@ def voltage_current(cell_number, csv_file):
         data = {voltage_title: voltage_list, current_title: current_list} # Dictionary containing data and columns
         df2 = pd.DataFrame(data) # Dataframe created containing dictionary
         return df2 # Returns the dataframe containing voltages and currents to the function
+    
+'''the dataframes should have clearer names
+    please write proper function definitions, in 233 I'm pretty sure you've used them before
+    have you tested this code?
+    do you know how try and except work?'''
