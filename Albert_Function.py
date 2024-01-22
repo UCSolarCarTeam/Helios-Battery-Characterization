@@ -50,7 +50,7 @@ def voltage_current_table(cell_number:str, opened_csv:str):
     try:
         max_index = len(original_data['Date & Time']) - 1 # Gives max index in csv file (specifically in the 'Date & Time' column)
     
-    except KeyError: # Raises an exception to a NameError
+    except KeyError: # Raises an exception to a KeyError
         print('This csv is empty or incorrectly formatted for this code.') # Alerts user that CSV is empty of incorrectly formatted
         quit() # Ends the program
         
