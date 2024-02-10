@@ -37,6 +37,8 @@ def write_resistance(cell_number, csv_filename, resistance_value):
 
     cell_data.loc[cell_row, "Resistance"] = resistance_value
 
+    cell_data.to_csv(csv_filename)
+    
 
 def main():
     write_resistance('01-01-01','Helios-Battery-Characterization-master\Cycle_Test_Carton_01a.csv',1) # Hardcoded for testing
